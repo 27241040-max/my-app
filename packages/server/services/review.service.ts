@@ -3,6 +3,13 @@ import { reviewRepository } from '../repositories/review.repository';
 
 export const reviewService = {
    async getReview(productId: number): Promise<Review[]> {
-      return reviewRepository.getReview(productId);
+      return reviewRepository.getReviews(productId);
+   },
+   async summarizeReviews(productId: number): Promise<string> {
+      const reviews = await reviewRepository.getReviews(productId, 10);
+      const joinedReviews = reviews.map((r) => r.content).join('\n\n');
+
+      const summary = 'This is a placeholder summary.';
+      return summary;
    },
 };
