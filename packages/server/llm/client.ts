@@ -1,5 +1,4 @@
 import OpenAI from 'openai';
-import { text } from 'stream/consumers';
 
 const client = new OpenAI({
    apiKey: process.env.OPENAI_API_KEY,
@@ -13,7 +12,7 @@ type GenerateTextOption = {
    maxTokens?: number;
    previousResponseId?: string;
 };
-type GererateTextResult = {
+type GenerateTextResult = {
    id: string;
    text: string;
 };
