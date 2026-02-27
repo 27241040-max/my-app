@@ -21,6 +21,7 @@
       "dotenv": "^17.3.1",
       "express": "^5.2.1",
       "openai": "^6.24.0",
+      "react-loading-skeleton": "^3.5.0",
       "remove": "^0.1.5",
       "zod": "^4.3.6"
    }
