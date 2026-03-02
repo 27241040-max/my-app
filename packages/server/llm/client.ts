@@ -2,6 +2,7 @@ import { Ollama } from 'ollama';
 import OpenAI from 'openai';
 import { InferenceClient } from '@huggingface/inference';
 import summarizePrompt from './prompts/summarize-reviews.txt';
+import chatbot from './prompts/chatbot.txt';
 
 const openAIClient = new OpenAI({
    apiKey: process.env.OPENAI_API_KEY,
@@ -26,29 +27,41 @@ type GenerateTextResult = {
 
 export const llmClient = {
    async generateText({
-      model = 'gpt-4.1',
+      model = 'meta-llama/Llama-3.1-8B-Instruct:novita',
       prompt,
       instructions,
       temperature = 0.2,
-      maxTokens = 300,
-      previousResponseId,
+      maxTokens = 1000,
    }: GenerateTextOption): Promise<GenerateTextResult> {
-      const response = await openAIClient.responses.create({
+      const response = await inferenceClient.chatCompletion({
          model,
-         input: prompt,
-         instructions,
+         messages: [
+            {
+               role: 'system',
+               content: instructions || chatbot,
+            },
+            {
+               role: 'user',
+               content: prompt,
+            },
+         ],
          temperature,
-         max_output_tokens: maxTokens,
-         previous_response_id: previousResponseId,
+         max_tokens: maxTokens,
       });
+
+      const text = response.choices[0]?.message?.content;
+      if (!text) {
+         throw new Error('Inference model returned empty content');
+      }
+
       return {
-         id: response.id,
-         text: response.output_text,
+         id: crypto.randomUUID(),
+         text,
       };
    },
    async summarizeReviews(reviews: string) {
-      const response = await ollamaClient.chat({
-         model: 'tinyllama',
+      const chatCompletion = await inferenceClient.chatCompletion({
+         model: 'meta-llama/Llama-3.1-8B-Instruct:novita',
          messages: [
             {
                role: 'system',
@@ -61,6 +74,6 @@ export const llmClient = {
          ],
       });
 
-      return response.message.content;
+      return chatCompletion.choices[0]?.message.content || '';
    },
 };

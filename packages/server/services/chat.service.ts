@@ -21,11 +21,8 @@ export const chatService = {
       conversationId: string
    ): Promise<ChatResponse> {
       const response = await llmClient.generateText({
-         model: 'gpt-4o-mini',
-         instructions,
          prompt,
-         temperature: 0.2,
-         maxTokens: 200,
+         instructions,
          previousResponseId:
             conversationRepository.getLastResponseId(conversationId),
       });
