@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import { conversationRepository } from '../repositories/conversation.repositories';
-import template from '../prompts/chatbot.txt';
+import template from '../llm/prompts/chatbot.txt';
 import { llmClient } from '../llm/client';
 
 const parkInfo = fs.readFileSync(
-   path.join(__dirname, '..', 'prompts', 'HKDL_GUide_2026.md'),
+   path.join(__dirname, '..', 'llm', 'prompts', 'HKDL_Guide_2026.md'),
    'utf-8'
 );
 const instructions = template.replace('{{parkInfo}}', parkInfo);

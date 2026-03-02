@@ -25,7 +25,9 @@ export const reviewsApi = {
 
    summerizeReviews(productId: number) {
       return axios
-         .post<SummarizeResponse>(`/api/product/${productId}/reviews/summarize`)
+         .post<SummarizeResponse>(
+            `/api/products/${productId}/reviews/summarize`
+         )
          .then((res) => res.data);
    },
 };
