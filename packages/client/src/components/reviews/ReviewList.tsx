@@ -46,16 +46,24 @@ const ReviewList = ({ productId }: Props) => {
 
    const [summary, setSummary] = useState('');
    const [isSummaryLoading, setIsSummaryLoading] = useState(false);
+   const [summaryError, setSummaryError] = useState('');
 
    const handleSummaize = async () => {
-      setIsSummaryLoading(true);
+      try {
+         setIsSummaryLoading(true);
+         setSummaryError('');
 
-      const { data } = await axios.post<SummarizeResponse>(
-         `/api/product/${productId}/reviews/summarize`
-      );
+         const { data } = await axios.post<SummarizeResponse>(
+            `/api/product/${productId}/reviews/summarize`
+         );
 
-      setSummary(data.summary);
-      setIsSummaryLoading(false);
+         setSummary(data.summary);
+      } catch (error) {
+         console.log(error);
+         setSummaryError('无法总结评论，请重试');
+      } finally {
+         setIsSummaryLoading(false);
+      }
    };
 
    if (isLoading) {
@@ -95,6 +103,9 @@ const ReviewList = ({ productId }: Props) => {
                      <div className="py-3">
                         <ReviewSkeleton />
                      </div>
+                  )}
+                  {summaryError && (
+                     <p className="text-red-500">{summaryError}</p>
                   )}
                </div>
             )}
