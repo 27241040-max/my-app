@@ -1,9 +1,10 @@
 import axios from 'axios';
 import StarRating from './StarRating';
-import Skeleton from 'react-loading-skeleton';
+import ReviewSkeleton from './ReviewSkeleton';
 import { HiSparkles } from 'react-icons/hi2';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '../ui/button';
+import { useState } from 'react';
 
 type Props = {
    productId: number;
@@ -22,6 +23,10 @@ type GetReviewsResponse = {
    reviews: Reviews[];
 };
 
+type SummarizeResponse = {
+   summary: string;
+};
+
 const ReviewList = ({ productId }: Props) => {
    const fetchReviews = async () => {
       const { data } = await axios.get<GetReviewsResponse>(
@@ -29,6 +34,7 @@ const ReviewList = ({ productId }: Props) => {
       );
       return data;
    };
+
    const {
       data: reviewData,
       isLoading,
@@ -38,15 +44,25 @@ const ReviewList = ({ productId }: Props) => {
       queryFn: fetchReviews,
    });
 
+   const [summary, setSummary] = useState('');
+   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
+
+   const handleSummaize = async () => {
+      setIsSummaryLoading(true);
+
+      const { data } = await axios.post<SummarizeResponse>(
+         `/api/product/${productId}/reviews/summarize`
+      );
+
+      setSummary(data.summary);
+      setIsSummaryLoading(false);
+   };
+
    if (isLoading) {
       return (
          <div className="flex flex-col gap-5">
             {[1, 2, 3].map((i) => (
-               <div key={i}>
-                  <Skeleton width={150} />
-                  <Skeleton width={100} />
-                  <Skeleton count={2} />
-               </div>
+               <ReviewSkeleton key={i} />
             ))}
          </div>
       );
@@ -57,16 +73,30 @@ const ReviewList = ({ productId }: Props) => {
    if (!reviewData?.reviews.length) {
       return null;
    }
+
+   const currentSummary = reviewData.summary || summary;
+
    return (
       <div>
          <div className="mb-5">
-            {reviewData?.summary ? (
-               <p>{reviewData?.summary}</p>
+            {currentSummary ? (
+               <p>{currentSummary}</p>
             ) : (
-               <Button>
-                  <HiSparkles />
-                  Summarize
-               </Button>
+               <div>
+                  <Button
+                     onClick={handleSummaize}
+                     className="cursor-pointer"
+                     disabled={isSummaryLoading}
+                  >
+                     <HiSparkles />
+                     Summarize
+                  </Button>
+                  {isSummaryLoading && (
+                     <div className="py-3">
+                        <ReviewSkeleton />
+                     </div>
+                  )}
+               </div>
             )}
          </div>
          <div className="flex flex-col gap-5">
